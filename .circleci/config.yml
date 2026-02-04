@@ -41,6 +41,7 @@ jobs:
             docker context use remote-vps
             docker stack deploy -c traefik/traefik-stack.yml traefik
             docker stack deploy -c mail/docker-compose.yml mail
+            docker stack deploy -c aliasvault/docker-compose.yml aliasvault
 
 workflows:
   deploy:
