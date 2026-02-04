@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  aliasvault:
+    image: ghcr.io/aliasvault/aliasvault:latest
+    environment:
+      HOSTNAME: "aliasvault.niksusername.com"
+      PUBLIC_REGISTRATION_ENABLED: "true"
+      IP_LOGGING_ENABLED: "true"
+      FORCE_HTTPS_REDIRECT: "false"
+      SUPPORT_EMAIL: "support@niksusername.com"
+      PRIVATE_EMAIL_DOMAINS: "niksusername.com"
+    volumes:
+      - aliasvault_db:/database
+      - aliasvault_logs:/logs
+      - aliasvault_secrets:/secrets
+    networks:
+      - public
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      resources:
+        limits:
+          cpus: "1.00"
+          memory: 1024M
+        reservations:
+          cpus: "0.30"
+          memory: 512M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=public"
+        - "traefik.http.routers.aliasvault.rule=Host(`aliasvault.niksusername.com`)"
+        - "traefik.http.routers.aliasvault.entrypoints=websecure"
+        - "traefik.http.routers.aliasvault.tls=true"
+        - "traefik.http.routers.aliasvault.tls.certresolver=letsencrypt"
+        - "traefik.http.services.aliasvault.loadbalancer.server.port=80"
+
+volumes:
+  aliasvault_db:
+  aliasvault_logs:
+  aliasvault_secrets:
+
+networks:
+  public:
+    external: true
