@@ -18,7 +18,7 @@ services:
       - mailstate:/var/mail-state
       - maillogs:/var/log/mail
       - ./docker-mailserver/config:/tmp/docker-mailserver
-      - ./traefik/acme.json:/etc/letsencrypt/acme.json:ro
+      - /var/lib/traefik/acme.json:/etc/letsencrypt/acme.json:ro
       - /etc/localtime:/etc/localtime:ro
     cap_add:
       - NET_ADMIN

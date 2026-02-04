@@ -1,0 +1,54 @@
+# Needed CICD variables:
+# - SSH_FINGERPRINT
+# - SERVER_IP
+# - SSH_CICD_USER
+
+version: 2.1
+
+executors:
+  ubuntu:
+    machine:
+      image: ubuntu-2404:2025.09.1
+
+jobs:
+  deploy_application:
+    executor: ubuntu
+    resource_class: medium
+    steps:
+      - checkout:
+          method: blobless
+      - run:
+          name: Install Docker
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+      - add_ssh_keys:
+          fingerprints:
+            - "${SSH_FINGERPRINT}"
+      - run:
+          name: Deploy stacks
+          command: |
+            set -ex
+            ssh-keyscan -H "${SERVER_IP}" >> ~/.ssh/known_hosts
+
+            ssh "${SSH_CICD_USER}@${SERVER_IP}" "
+              set -e
+              sudo mkdir -p /var/lib/traefik
+              sudo touch /var/lib/traefik/acme.json
+              sudo chmod 600 /var/lib/traefik/acme.json
+              docker network inspect public >/dev/null 2>&1 || docker network create -d overlay --attachable public
+            "
+
+            docker context create remote-vps --docker "host=ssh://${SSH_CICD_USER}@${SERVER_IP}"
+            docker context use remote-vps
+            docker stack deploy -c traefik/traefik-stack.yml traefik
+            docker stack deploy -c mail/docker-compose.yml mail
+
+workflows:
+  deploy:
+    jobs:
+      - deploy_application:
+          filters:
+            branches:
+              only:
+                - main
