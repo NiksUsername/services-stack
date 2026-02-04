@@ -18,7 +18,7 @@ services:
       - mailstate:/var/mail-state
       - maillogs:/var/log/mail
       - ./docker-mailserver/config:/tmp/docker-mailserver
-      - /var/lib/traefik/acme.json:/etc/letsencrypt/acme.json:ro
+      - traefik_acme:/etc/letsencrypt
       - /etc/localtime:/etc/localtime:ro
     cap_add:
       - NET_ADMIN
@@ -34,3 +34,5 @@ volumes:
   maildata:
   mailstate:
   maillogs:
+  traefik_acme:
+    external: true

@@ -11,7 +11,7 @@ services:
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       - --certificatesresolvers.letsencrypt.acme.email=admin@niksusername.com
-      - --certificatesresolvers.letsencrypt.acme.storage=/var/lib/traefik/acme.json
+      - --certificatesresolvers.letsencrypt.acme.storage=/acme/acme.json
       - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
     ports:
       - target: 80
@@ -24,7 +24,7 @@ services:
         mode: host
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /var/lib/traefik:/var/lib/traefik
+      - traefik_acme:/acme
     deploy:
       replicas: 1
       placement:
@@ -54,4 +54,8 @@ services:
 
 networks:
   public:
+    external: true
+
+volumes:
+  traefik_acme:
     external: true
