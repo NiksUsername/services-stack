@@ -7,6 +7,9 @@ services:
     domainname: niksusername.com
     env_file:
       - mailserver.env
+    environment:
+      - RELAY_USER=${RELAY_USER}
+      - RELAY_PASSWORD=${RELAY_PASSWORD}
     ports:
       - target: 25
         published: 25

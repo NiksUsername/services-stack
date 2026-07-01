@@ -2,6 +2,8 @@
 # - SSH_FINGERPRINT
 # - SERVER_IP
 # - SSH_CICD_USER
+# - RELAY_USER
+# - RELAY_PASSWORD
 
 version: 2.1
 
@@ -29,6 +31,11 @@ jobs:
           name: Deploy stacks
           command: |
             set -ex
+            set +x
+            : "${RELAY_USER:?RELAY_USER is not set in CircleCI project settings}"
+            : "${RELAY_PASSWORD:?RELAY_PASSWORD is not set in CircleCI project settings}"
+            set -x
+
             ssh-keyscan -H "${SERVER_IP}" >> ~/.ssh/known_hosts
 
             ssh "${SSH_CICD_USER}@${SERVER_IP}" "
